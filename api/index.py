@@ -1,4 +1,4 @@
-"""Flask Web Server for Exam Seat Finder.
+"""Flask Web Server for Exam Seat Finder (Vercel Entry Point).
 
 Provides web routes and API endpoints for:
 - Dashboard display of upcoming exams
@@ -10,18 +10,22 @@ Provides web routes and API endpoints for:
 import csv
 import json
 import os
+import sys
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from groq import Groq
 
+# Ensure project root is in python path
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
+
 from models import Hall, Student, SeatAssignment, AllocationResult
 from optimizer import allocate, validate
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=str(BASE_DIR / "templates"), static_folder=str(BASE_DIR / "static"))
 app.secret_key = "seatwise_secret_key"
 
 # Paths
-BASE_DIR = Path(__file__).resolve().parent
 if "VERCEL" in os.environ:
     DATA_DIR = Path("/tmp")
 else:
@@ -136,13 +140,10 @@ def seat_map():
     allocation = load_allocation()
     
     # Extract unique halls from the assignments to display on left sidebar
-    # If no halls are present in assignments (unlikely), fall back to default halls list
     halls_dict = {}
     for a in allocation.get("assignments", []):
         hall_id = a["hall_id"]
         if hall_id not in halls_dict:
-            # Look up hall properties from sample_halls or construct simple defaults
-            # To be safe, load all possible halls from sample_halls.json
             halls_dict[hall_id] = {
                 "id": hall_id,
                 "name": a["hall_name"],
@@ -249,7 +250,7 @@ def api_allocate():
         # Fall back to default halls
         halls = get_default_halls()
 
-    # Filter halls to only those selected in step 2 (or fall back to selected H1/H2 if none)
+    # Filter halls to only those selected
     if selected_hall_ids:
         halls = [h for h in halls if h.id in selected_hall_ids]
     
@@ -266,8 +267,6 @@ def api_allocate():
     save_allocation(result)
 
     # Save custom students & halls for re-optimization or swapping references
-    # To keep code simple, we save student/hall lists inside active_allocation.json metadata
-    # so we don't need databases
     alloc_data = result.model_dump()
     alloc_data["exam_title"] = title
     alloc_data["exam_date"] = date
@@ -316,8 +315,7 @@ def api_reoptimize():
         students = get_default_students()
         halls = get_default_halls()
         
-    # Re-run optimizer (forces SA by default or runs with higher depth)
-    # We can add a bit of random perturbation by shuffling students list
+    # Re-run optimizer with shuffling
     import random
     random.shuffle(students)
     
@@ -335,7 +333,6 @@ def api_reoptimize():
     # Update active exam status in dashboard
     exams = load_exams()
     if exams:
-        # Update first exam (latest) or find matches
         exams[0]["conflicts_count"] = len(result.conflicts)
         exams[0]["status"] = "Ready" if len(result.conflicts) == 0 else "Optimizing"
         exams[0]["score"] = result.score / 100.0
@@ -375,7 +372,6 @@ def api_swap():
         a2["row"], a2["col"] = row_temp, col_temp
         
         # Re-validate conflicts
-        # Re-load halls to verify neighbors
         halls_data = allocation.get("_halls")
         if halls_data:
             halls = [Hall(**h) for h in halls_data]
@@ -448,7 +444,6 @@ If they ask about resolving conflicts, suggest swapping students of conflicting 
     # Get Groq API key from environment
     groq_api_key = os.environ.get("GROQ_API_KEY")
     if not groq_api_key or "your_api_key_here" in groq_api_key:
-        # Fallback local rules if key is missing
         return jsonify({"response": "I am here to help you optimize the seating layout. Please add a valid GROQ_API_KEY to your .env file to enable live AI analysis!"})
         
     try:
