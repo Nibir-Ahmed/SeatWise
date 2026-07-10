@@ -23,8 +23,8 @@ console = Console()
 def print_banner():
     console.print(
         Panel.fit(
-            "[bold cyan]🎓 AI Exam Hall Seat Allocation[/]\n"
-            "[dim]Search Optimization · CSP + Genetic Algorithm · AGY SDK[/]",
+            "[bold cyan]Exam Hall Seat Allocation[/]\n"
+            "[dim]Search Optimization · CSP + Simulated Annealing[/]",
             border_style="cyan",
         )
     )
@@ -50,14 +50,14 @@ def run_auto(students_path: str, halls_path: str):
                     needs_accessible=row.get("needs_accessible", "").lower() == "true",
                 )
             )
-    console.print(f"  ✅ {len(students)} students loaded")
+    console.print(f"  {len(students)} students loaded successfully")
 
     # Load halls
     with open(halls_path) as f:
         data = json.load(f)
     halls = [Hall(**h) for h in data["halls"]]
     total_seats = sum(h.capacity for h in halls)
-    console.print(f"  ✅ {len(halls)} halls loaded ({total_seats} total seats)")
+    console.print(f"  {len(halls)} halls loaded successfully ({total_seats} total seats)")
 
     # Run optimizer
     console.print("\n[bold]Running optimizer...[/]")
@@ -83,7 +83,7 @@ def run_auto(students_path: str, halls_path: str):
         halls_used.setdefault(a.hall_name, []).append(a)
 
     for hall_name, assigns in halls_used.items():
-        table = Table(title=f"🪑 {hall_name}", show_lines=True)
+        table = Table(title=f"Hall: {hall_name}", show_lines=True)
         table.add_column("Student", style="cyan")
         table.add_column("Subject", style="magenta")
         table.add_column("Row", justify="center")
@@ -100,7 +100,7 @@ def run_auto(students_path: str, halls_path: str):
         max_col = max(a.col for a in assigns) + 1
         grid = {(a.row, a.col): a for a in assigns}
 
-        console.print(f"\n[bold]📐 Seating Grid: {hall_name}[/]")
+        console.print(f"\n[bold]Seating Grid: {hall_name}[/]")
         header = "      " + "  ".join(f"[dim]C{c}[/]  " for c in range(max_col))
         console.print(header)
 
@@ -129,11 +129,11 @@ def run_auto(students_path: str, halls_path: str):
 
     # Conflicts
     if result.conflicts:
-        console.print(f"\n[bold red]⚠️  {len(result.conflicts)} Conflicts:[/]")
+        console.print(f"\n[bold red]Conflicts ({len(result.conflicts)} remaining):[/]")
         for c in result.conflicts:
-            console.print(f"  [red]• {c}[/]")
+            console.print(f"  [red]- {c}[/]")
     else:
-        console.print("\n[bold green]✅ No conflicts! Perfect allocation.[/]")
+        console.print("\n[bold green]No conflicts! Perfect allocation.[/]")
 
 
 # --- CLI ---
