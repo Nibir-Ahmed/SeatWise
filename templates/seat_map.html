@@ -163,7 +163,33 @@
             </div>
         </div>
 
-        <!-- Sidebar layout space -->
+        <!-- AI Allocation Copilot -->
+        <div class="bg-white border border-slate-100/80 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-6 flex flex-col space-y-4 no-print">
+            <div class="flex items-center space-x-2 border-b border-slate-50 pb-3">
+                <span class="bg-indigo-50 text-indigo-700 p-1.5 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </span>
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">AI Copilot</h3>
+            </div>
+            
+            <!-- Chat history area -->
+            <div class="text-[11px] space-y-3 max-h-[140px] overflow-y-auto pr-1 flex flex-col" id="copilot-chat-history">
+                <div class="bg-slate-50 text-slate-600 rounded-xl p-2.5 self-start max-w-[90%] leading-relaxed">
+                    Hello! Ask me about resolving conflicts or verifying seating rules for this hall.
+                </div>
+            </div>
+            
+            <!-- Chat input form -->
+            <div class="flex items-center space-x-2">
+                <input type="text" id="copilot-input" placeholder="Ask AI..." 
+                    class="flex-grow border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-600 transition-colors"
+                    onkeypress="if(event.key === 'Enter') sendCopilotMessage()">
+                <button onclick="sendCopilotMessage()" id="btn-ask-copilot"
+                    class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -512,6 +538,53 @@
         form.submit();
     }
 
-    // AI chat removed
+    function sendCopilotMessage() {
+        const input = document.getElementById('copilot-input');
+        const query = input.value.trim();
+        if (!query) return;
+        
+        input.value = '';
+        
+        // Add user message to chat history
+        const history = document.getElementById('copilot-chat-history');
+        const userMsg = document.createElement('div');
+        userMsg.className = "bg-indigo-600 text-white rounded-xl p-2.5 self-end max-w-[90%] leading-relaxed";
+        userMsg.innerText = query;
+        history.appendChild(userMsg);
+        
+        // Add temporary loading indicator
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = "bg-slate-50 text-slate-400 rounded-xl p-2.5 self-start max-w-[90%] italic";
+        loadingMsg.innerText = "Thinking...";
+        history.appendChild(loadingMsg);
+        
+        history.scrollTop = history.scrollHeight;
+        
+        // Call backend API
+        fetch('/api/ai_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: query })
+        })
+        .then(res => res.json())
+        .then(data => {
+            history.removeChild(loadingMsg);
+            const aiMsg = document.createElement('div');
+            aiMsg.className = "bg-slate-50 text-slate-600 rounded-xl p-2.5 self-start max-w-[90%] leading-relaxed";
+            aiMsg.innerText = data.response;
+            history.appendChild(aiMsg);
+            history.scrollTop = history.scrollHeight;
+        })
+        .catch(err => {
+            history.removeChild(loadingMsg);
+            const errorMsg = document.createElement('div');
+            errorMsg.className = "bg-red-50 text-red-600 rounded-xl p-2.5 self-start max-w-[90%] italic";
+            errorMsg.innerText = "Error: Could not connect to AI Copilot.";
+            history.appendChild(errorMsg);
+            history.scrollTop = history.scrollHeight;
+        });
+    }
 </script>
 {% endblock %}
