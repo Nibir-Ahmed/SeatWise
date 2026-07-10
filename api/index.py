@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
 from models import Hall, Student, SeatAssignment, AllocationResult
-from optimizer import allocate, validate
+from optimizer import allocate
 
 app = Flask(__name__, template_folder=str(BASE_DIR / "templates"), static_folder=str(BASE_DIR / "static"))
 app.secret_key = "seatwise_secret_key"

@@ -272,24 +272,3 @@ def allocate(students: list[Student], halls: list[Hall]) -> AllocationResult:
         score=score,
     )
 
-
-def validate(result: AllocationResult) -> list[str]:
-    """Validate an allocation result and return list of issues."""
-    issues = list(result.conflicts)
-
-    # Check for duplicate seat assignments
-    seats_used = set()
-    for a in result.assignments:
-        key = (a.hall_id, a.row, a.col)
-        if key in seats_used:
-            issues.append(f"Duplicate seat: {a.student_name} at {a.hall_name} ({a.row},{a.col})")
-        seats_used.add(key)
-
-    # Check for duplicate student assignments
-    students_seen = set()
-    for a in result.assignments:
-        if a.student_id in students_seen:
-            issues.append(f"Student {a.student_name} assigned multiple seats")
-        students_seen.add(a.student_id)
-
-    return issues
