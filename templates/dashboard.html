@@ -28,25 +28,25 @@
     <!-- Card 1 -->
     <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Students Seated</p>
-        <p class="text-3xl font-bold text-slate-900 mt-2">2,785</p>
-        <p class="text-xs text-slate-500 mt-1">across 4 exams</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2">{{ "{:,}".format(stats.total_students) }}</p>
+        <p class="text-xs text-slate-500 mt-1">across {{ exams|length }} exam{% if exams|length != 1 %}s{% endif %}</p>
     </div>
     <!-- Card 2 -->
     <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Halls in Use</p>
-        <p class="text-3xl font-bold text-slate-900 mt-2">19</p>
-        <p class="text-xs text-slate-500 mt-1">12 available</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2">{{ stats.halls_in_use }}</p>
+        <p class="text-xs text-slate-500 mt-1">{{ stats.total_available_halls }} available</p>
     </div>
     <!-- Card 3 -->
     <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Open Conflicts</p>
-        <p class="text-3xl font-bold text-slate-900 mt-2 text-amber-600">7</p>
-        <p class="text-xs text-slate-500 mt-1">down from 41</p>
+        <p class="text-3xl font-bold mt-2 {% if stats.total_conflicts > 0 %}text-amber-600{% else %}text-slate-900{% endif %}">{{ stats.total_conflicts }}</p>
+        <p class="text-xs text-slate-500 mt-1">across all sessions</p>
     </div>
     <!-- Card 4 -->
     <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Avg. Optimizer Score</p>
-        <p class="text-3xl font-bold text-slate-900 mt-2">0.92</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2">{{ "{:.2f}".format(stats.avg_score) }}</p>
         <p class="text-xs text-slate-500 mt-1">target &ge; 0.90</p>
     </div>
 </div>

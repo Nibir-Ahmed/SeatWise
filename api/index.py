@@ -125,7 +125,30 @@ def save_allocation(result):
 def index():
     """Dashboard page."""
     exams = load_exams()
-    return render_template("dashboard.html", exams=exams)
+    
+    # Calculate dynamic statistics
+    total_students = sum(e.get("students_count", 0) for e in exams)
+    halls_in_use = sum(e.get("halls_count", 0) for e in exams)
+    total_conflicts = sum(e.get("conflicts_count", 0) for e in exams)
+    
+    # Calculate average optimizer score
+    valid_scores = [e.get("score", 0) for e in exams if e.get("score") is not None]
+    avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else 0.0
+    
+    try:
+        total_available_halls = len(get_default_halls())
+    except Exception:
+        total_available_halls = 3
+        
+    stats = {
+        "total_students": total_students,
+        "halls_in_use": halls_in_use,
+        "total_available_halls": total_available_halls,
+        "total_conflicts": total_conflicts,
+        "avg_score": avg_score
+    }
+    
+    return render_template("dashboard.html", exams=exams, stats=stats)
 
 
 @app.route("/new")
