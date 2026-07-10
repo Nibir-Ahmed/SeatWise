@@ -18,7 +18,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-from models import Hall, Student, SeatAssignment, AllocationResult
+from models import Hall, Student, AllocationResult
 from optimizer import allocate
 
 app = Flask(__name__, template_folder=str(BASE_DIR / "templates"), static_folder=str(BASE_DIR / "static"))
