@@ -13,7 +13,6 @@ import os
 import sys
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from groq import Groq
 
 # Ensure project root is in python path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -436,54 +435,7 @@ def api_swap():
     return redirect(url_for("seat_map"))
 
 
-@app.route("/api/ai_chat", methods=["POST"])
-def api_ai_chat():
-    """Contact Groq API to query recommendations or chat about the seating layout."""
-    user_message = request.json.get("message", "")
-    
-    # Load current allocation state
-    try:
-        allocation = load_allocation()
-        total_students = len(allocation.get("assignments", []))
-        score = allocation.get("score", 0)
-        conflicts = allocation.get("conflicts", [])
-    except Exception:
-        total_students = 0
-        score = 0
-        conflicts = []
-        
-    system_prompt = f"""You are the Seatwise AI Allocation Copilot. 
-You help exam cell administrators optimize seating grids, resolve conflicts, and make swap decisions.
-Current Layout State:
-- Allocated Students: {total_students}
-- Current Layout Score: {score}/100
-- Conflicts remaining: {len(conflicts)}
-- List of conflicts: {', '.join(conflicts[:5])}
 
-Answer the administrator's question in a professional, concise way (max 3 sentences). 
-If they ask about resolving conflicts, suggest swapping students of conflicting subjects.
-"""
-    
-    # Get Groq API key from environment
-    groq_api_key = os.environ.get("GROQ_API_KEY")
-    if not groq_api_key or "your_api_key_here" in groq_api_key:
-        return jsonify({"response": "I am here to help you optimize the seating layout. Please add a valid GROQ_API_KEY to your .env file to enable live AI analysis!"})
-        
-    try:
-        client = Groq(api_key=groq_api_key)
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ],
-            model="llama-3.1-8b-instant",
-            max_tokens=256,
-            temperature=0.7
-        )
-        ai_response = chat_completion.choices[0].message.content
-        return jsonify({"response": ai_response})
-    except Exception as e:
-        return jsonify({"response": f"AI Copilot encountered an error contacting Groq: {str(e)}"})
 
 
 if __name__ == "__main__":
