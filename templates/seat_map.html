@@ -1,0 +1,590 @@
+{% extends 'base.html' %}
+
+{% block title %}Seat Map - Seatwise{% endblock %}
+
+{% block content %}
+<!-- Print styles for single-page clean PDF export -->
+<style>
+    @media print {
+        header, footer, .no-print {
+            display: none !important;
+        }
+        body, main {
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .print-layout {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+        }
+        .print-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+
+<!-- Page Breadcrumbs -->
+<nav class="flex text-xs font-semibold tracking-wider text-slate-400 uppercase mb-6 no-print" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-2">
+        <li class="inline-flex items-center">
+            <a href="/" class="hover:text-slate-700">Dashboard</a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-slate-300 mx-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <span class="text-slate-600">Seat Map</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<div class="print-layout flex flex-col lg:flex-row lg:space-x-8">
+    <!-- Left Column: Hall Selector -->
+    <div class="w-full lg:w-56 mb-6 lg:mb-0 flex-shrink-0 no-print">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Halls</h3>
+        <div class="space-y-3">
+            {% for h in halls %}
+            <button onclick="switchHall('{{ h.id }}')" id="btn-hall-{{ h.id }}"
+                class="w-full text-left p-4 border border-slate-100 rounded-xl hover:bg-slate-50/50 transition-colors flex flex-col justify-between select-hall-btn">
+                <span class="font-bold text-sm text-slate-800">{{ h.name }}</span>
+                <span class="text-xs text-slate-400 mt-1" id="btn-hall-assigned-{{ h.id }}">Calculating...</span>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Center Column: Seating Grid Chart -->
+    <div class="flex-grow bg-white border border-slate-100 rounded-2xl shadow-sm p-6 print-card">
+        <!-- Grid Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5 mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900" id="hall-title">Hall A &mdash; Main Block</h1>
+                <p class="text-xs text-slate-400 mt-1" id="hall-subtitle">Loading...</p>
+            </div>
+            
+            <div class="flex space-x-2 mt-4 sm:mt-0 no-print">
+                <button onclick="reoptimize()" class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center">
+                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2M7 9h8m0 0v8m0-8l-8 8"></path></svg>
+                    Re-optimize
+                </button>
+                <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center">
+                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Export PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Seating Grid View -->
+        <div class="flex flex-col items-center">
+            <!-- Front of Hall indicator -->
+            <div class="w-full max-w-lg border border-slate-100 rounded-lg py-1.5 text-center text-[10px] font-semibold tracking-widest text-slate-400 uppercase bg-slate-50/50 mb-8 select-none">
+                Invigilator Desk &bull; Front of Hall
+            </div>
+            
+            <!-- Grid Container -->
+            <div class="overflow-x-auto w-full flex justify-center py-4">
+                <div class="grid gap-2.5 p-2 bg-white" id="seating-grid-container">
+                    <!-- JavaScript will inject seats here -->
+                </div>
+            </div>
+            
+            <!-- Grid Legend -->
+            <div class="w-full border-t border-slate-100 mt-8 pt-6">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Legend</h4>
+                <div class="flex flex-wrap gap-4 text-xs font-medium" id="legend-container">
+                    <!-- Dynamic legend injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Inspector & Stats -->
+    <div class="w-full lg:w-72 flex-shrink-0 space-y-6 no-print">
+        <!-- Hall Score Widget -->
+        <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Hall Score</p>
+            <div class="flex items-baseline space-x-2 mt-2">
+                <span class="text-3xl font-bold text-slate-900" id="stat-score">0.94</span>
+                <span class="text-xs text-emerald-600 font-bold flex items-center" id="stat-score-delta">
+                    <svg class="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+                    0.12 since last run
+                </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1" id="stat-conflicts">1 conflict remaining</p>
+        </div>
+
+        <!-- Seat Inspector Panel -->
+        <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6 min-h-[300px] flex flex-col" id="inspector-panel">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Inspector</h3>
+            
+            <!-- Default Empty State -->
+            <div class="flex-grow flex flex-col items-center justify-center text-center p-4" id="inspector-empty-state">
+                <svg class="w-8 h-8 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                <p class="text-xs text-slate-400 leading-relaxed">Select a seat to see its student, subject, and AI-suggested swaps.</p>
+            </div>
+            
+            <!-- Selected Seat Details (Hidden initially) -->
+            <div class="space-y-5 hidden" id="inspector-details">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-slate-50 text-slate-500 rounded border border-slate-200 inline-block" id="inspector-seat-id">Seat 001</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 ml-1 bg-amber-50 text-amber-700 rounded border border-amber-100 inline-block hidden" id="inspector-accessible-badge">Accessible</span>
+                </div>
+                
+                <div>
+                    <p class="text-xs font-semibold text-slate-400">Student Name</p>
+                    <p class="font-bold text-slate-900 text-base" id="inspector-student-name">Rahim Uddin</p>
+                    <p class="text-xs text-slate-400 mt-0.5" id="inspector-student-id">ID: S001</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400">Subject</p>
+                        <p class="font-bold text-slate-800 text-xs mt-0.5" id="inspector-subject">Mathematics</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-400">Department</p>
+                        <p class="font-bold text-slate-800 text-xs mt-0.5" id="inspector-dept">CSE</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <div class="flex items-center justify-between text-xs mb-3">
+                        <span class="font-bold text-slate-900">AI-Suggested Swaps</span>
+                        <span class="text-slate-400">Resolves conflict</span>
+                    </div>
+                    <!-- Swaps list -->
+                    <div class="space-y-2 max-h-[160px] overflow-y-auto pr-1" id="swaps-list">
+                        <!-- Swaps injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Allocation Copilot -->
+        <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6 flex flex-col space-y-4 no-print">
+            <div class="flex items-center space-x-2 border-b border-slate-50 pb-3">
+                <span class="bg-indigo-50 text-indigo-700 p-1.5 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </span>
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">AI Copilot</h3>
+            </div>
+            
+            <!-- Chat history area -->
+            <div class="text-[11px] space-y-3 max-h-[140px] overflow-y-auto pr-1 flex flex-col" id="copilot-chat-history">
+                <div class="bg-slate-50 text-slate-600 rounded-xl p-2.5 self-start max-w-[90%] leading-relaxed">
+                    Hello! Ask me about resolving conflicts or verifying seating rules for this hall.
+                </div>
+            </div>
+            
+            <!-- Chat input form -->
+            <div class="flex items-center space-x-2">
+                <input type="text" id="copilot-input" placeholder="Ask AI..." 
+                    class="flex-grow border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-600 transition-colors"
+                    onkeypress="if(event.key === 'Enter') sendCopilotMessage()">
+                <button onclick="sendCopilotMessage()" id="btn-ask-copilot"
+                    class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Re-optimizing Loading Overlay -->
+<div id="reoptimize-loading" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 hidden">
+    <div class="bg-white border border-slate-100 rounded-2xl p-8 max-w-xs w-full shadow-2xl text-center">
+        <div class="flex justify-center mb-4">
+            <svg class="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900">Re-optimizing layout...</h3>
+        <p class="text-xs text-slate-400 mt-1">Refining seating layout with Simulated Annealing...</p>
+    </div>
+</div>
+
+<!-- JavaScript to load grid dynamically and manage inspector -->
+<script>
+    // Seating allocation data passed from backend
+    const allocationData = {{ allocation|tojson }};
+    const hallsData = {{ halls|tojson }};
+    
+    // Subject style maps for seat grid coloring (pastel backgrounds + dark borders/text)
+    const subjectStyles = {
+        'Mathematics': 'bg-rose-50 border-rose-200 text-rose-800 hover:bg-rose-100 hover:border-rose-300',
+        'Physics': 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300',
+        'Chemistry': 'bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100 hover:border-sky-300',
+        'English': 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100 hover:border-amber-300',
+        'Biology': 'bg-fuchsia-50 border-fuchsia-200 text-fuchsia-800 hover:bg-fuchsia-100 hover:border-fuchsia-300',
+        'History': 'bg-violet-50 border-violet-200 text-violet-800 hover:bg-violet-100 hover:border-violet-300',
+        'Default': 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
+    };
+
+    let activeHallId = '';
+    let selectedSeat = null; // { hallId, row, col }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+        const assignments = (allocationData && allocationData.assignments) ? allocationData.assignments : [];
+        const score = (allocationData && typeof allocationData.score === 'number') ? allocationData.score : 0;
+        const conflicts = (allocationData && allocationData.conflicts) ? allocationData.conflicts : [];
+
+        // Compute allocations count per hall
+        hallsData.forEach(h => {
+            const count = assignments.filter(a => a.hall_id === h.id).length;
+            const textEl = document.getElementById('btn-hall-assigned-' + h.id);
+            if (textEl) {
+                textEl.innerText = `${count}/${h.rows * h.cols} seats assigned`;
+            }
+        });
+
+        // Set default active hall
+        if (hallsData.length > 0) {
+            switchHall(hallsData[0].id);
+        }
+        
+        // Populate stats panel
+        document.getElementById('stat-score').innerText = score.toFixed(2);
+        
+        // Delta score simulation for visualization polish
+        const conflictsCount = conflicts.length;
+        document.getElementById('stat-conflicts').innerText = conflictsCount === 0 ? "No conflicts! Perfect score." : `${conflictsCount} conflict(s) remaining`;
+        if (conflictsCount === 0) {
+            document.getElementById('stat-score-delta').className = "text-xs text-emerald-600 font-bold flex items-center";
+            document.getElementById('stat-score-delta').innerHTML = `
+                <svg class="w-3 h-3 mr-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                Perfect Layout
+            `;
+        } else {
+            document.getElementById('stat-score-delta').className = "text-xs text-amber-600 font-bold flex items-center";
+            document.getElementById('stat-score-delta').innerHTML = `
+                <svg class="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Optimizing needed
+            `;
+        }
+    });
+
+    function switchHall(hallId) {
+        activeHallId = hallId;
+        
+        // Remove active state from all buttons
+        document.querySelectorAll('.select-hall-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-50/50', 'border-indigo-600');
+            btn.classList.add('border-slate-100');
+        });
+        
+        // Set active button
+        const activeBtn = document.getElementById('btn-hall-' + hallId);
+        activeBtn.classList.remove('border-slate-100');
+        activeBtn.classList.add('bg-indigo-50/50', 'border-indigo-600');
+
+        // Load details
+        const hall = hallsData.find(h => h.id === hallId);
+        document.getElementById('hall-title').innerHTML = hall.name;
+        
+        const assignments = (allocationData && allocationData.assignments) ? allocationData.assignments : [];
+        const count = assignments.filter(a => a.hall_id === hallId).length;
+        
+        const title = allocationData.exam_title || 'End-Sem Semester 3';
+        const date = allocationData.exam_date || '2026-11-24';
+        const session = allocationData.exam_session || 'Morning - 9:30 AM';
+        document.getElementById('hall-subtitle').innerHTML = `${title} &middot; ${date} &middot; ${session} &middot; ${count}/${hall.rows * hall.cols} seats assigned`;
+
+        // Render grid
+        renderGrid(hall);
+        renderLegend(hallId);
+        
+        // Reset inspector
+        document.getElementById('inspector-empty-state').classList.remove('hidden');
+        document.getElementById('inspector-details').classList.add('hidden');
+        selectedSeat = null;
+    }
+
+    function renderGrid(hall) {
+        const container = document.getElementById('seating-grid-container');
+        container.innerHTML = '';
+        
+        // Define column-count dynamically in grid
+        container.style.gridTemplateColumns = `repeat(${hall.cols}, minmax(0, 1fr))`;
+        
+        // Fetch all assignments for this hall safely
+        const allAssignments = (allocationData && allocationData.assignments) ? allocationData.assignments : [];
+        const assignments = allAssignments.filter(a => a.hall_id === hall.id);
+        const assignsMap = {};
+        assignments.forEach(a => {
+            assignsMap[`${a.row},${a.col}`] = a;
+        });
+
+        // Loop over rows and cols
+        for (let r = 0; r < hall.rows; r++) {
+            for (let c = 0; c < hall.cols; c++) {
+                const seatBtn = document.createElement('button');
+                
+                // Identify properties
+                const assign = assignsMap[`${r},${c}`];
+                const isAccessible = hall.accessible_seats.some(s => s[0] === r && s[1] === c);
+                
+                // Base classes
+                seatBtn.className = "w-11 h-11 border rounded-lg text-[9px] font-bold flex flex-col items-center justify-center transition-all relative select-none ";
+                
+                // Check if seat is occupied
+                if (assign) {
+                    const style = subjectStyles[assign.subject] || subjectStyles['Default'];
+                    seatBtn.className += `${style} border-solid`;
+                    
+                    // Display first 3 chars of subject
+                    seatBtn.innerHTML = `<span>${assign.subject.substring(0, 3).toUpperCase()}</span>`;
+                    
+                    // Add details attribute for inspector reference
+                    seatBtn.setAttribute('data-student', JSON.stringify(assign));
+                    
+                    // Conflict check (same-subject neighbor in 8 directions)
+                    const hasConflict = checkSeatConflict(assign, assignsMap, hall);
+                    if (hasConflict) {
+                        seatBtn.className += " ring-2 ring-red-500 ring-offset-1 border-red-500 animate-pulse";
+                        seatBtn.setAttribute('data-conflict', 'true');
+                    }
+                } else {
+                    // Empty seat
+                    seatBtn.className += "bg-white border-slate-100 hover:bg-slate-50 border-dashed text-slate-300";
+                    seatBtn.innerHTML = '<span>·</span>';
+                }
+                
+                // Add accessibility indicator (grey dot)
+                if (isAccessible) {
+                    const dot = document.createElement('span');
+                    dot.className = "w-1.5 h-1.5 rounded-full bg-slate-400 absolute bottom-1";
+                    seatBtn.appendChild(dot);
+                    seatBtn.setAttribute('data-accessible', 'true');
+                }
+                
+                // Click handler
+                seatBtn.onclick = () => selectSeat(seatBtn, r, c, assign, isAccessible);
+                
+                seatBtn.id = `seat-${r}-${c}`;
+                container.appendChild(seatBtn);
+            }
+        }
+    }
+
+    function checkSeatConflict(assign, assignsMap, hall) {
+        // Offsets
+        const adjacent = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+        for (let i = 0; i < adjacent.length; i++) {
+            const nr = assign.row + adjacent[i][0];
+            const nc = assign.col + adjacent[i][1];
+            if (nr >= 0 && nr < hall.rows && nc >= 0 && nc < hall.cols) {
+                const neighbor = assignsMap[`${nr},${nc}`];
+                if (neighbor && neighbor.subject === assign.subject) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function renderLegend(hallId) {
+        const legendContainer = document.getElementById('legend-container');
+        legendContainer.innerHTML = '';
+        
+        // Find all subjects in this hall safely
+        const allAssignments = (allocationData && allocationData.assignments) ? allocationData.assignments : [];
+        const assignments = allAssignments.filter(a => a.hall_id === hallId);
+        const subjects = [...new Set(assignments.map(a => a.subject))];
+        
+        subjects.forEach(sub => {
+            const style = subjectStyles[sub] || subjectStyles['Default'];
+            const colorClass = style.split(' ')[0]; // Take bg color class
+            const borderClass = style.split(' ')[1]; // Take border color class
+            
+            const legendItem = document.createElement('div');
+            legendItem.className = "flex items-center space-x-2";
+            legendItem.innerHTML = `
+                <span class="w-3.5 h-3.5 rounded border ${colorClass} ${borderClass}"></span>
+                <span class="text-slate-600 font-medium">${sub}</span>
+            `;
+            legendContainer.appendChild(legendItem);
+        });
+
+        // Add accessible symbol to legend
+        const accessItem = document.createElement('div');
+        accessItem.className = "flex items-center space-x-2";
+        accessItem.innerHTML = `
+            <span class="w-3.5 h-3.5 rounded border border-slate-200 bg-white flex items-center justify-center">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+            </span>
+            <span class="text-slate-600 font-medium">Accessible seat (Row 0)</span>
+        `;
+        legendContainer.appendChild(accessItem);
+    }
+
+    function selectSeat(element, row, col, assign, isAccessible) {
+        // Clear previous selected border
+        document.querySelectorAll('#seating-grid-container button').forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-indigo-600/30', 'border-indigo-600');
+        });
+
+        // Highlight selected
+        element.classList.add('ring-4', 'ring-indigo-600/30', 'border-indigo-600');
+        
+        selectedSeat = { hallId: activeHallId, row, col };
+        
+        // Toggle inspector panels
+        document.getElementById('inspector-empty-state').classList.add('hidden');
+        const detailsEl = document.getElementById('inspector-details');
+        detailsEl.classList.remove('hidden');
+
+        // Set properties
+        document.getElementById('inspector-seat-id').innerText = `Seat R${row} C${col}`;
+        
+        if (isAccessible) {
+            document.getElementById('inspector-accessible-badge').classList.remove('hidden');
+        } else {
+            document.getElementById('inspector-accessible-badge').classList.add('hidden');
+        }
+
+        if (assign) {
+            document.getElementById('inspector-student-name').innerText = assign.student_name;
+            document.getElementById('inspector-student-id').innerText = `ID: ${assign.student_id}`;
+            document.getElementById('inspector-subject').innerText = assign.subject;
+            document.getElementById('inspector-dept').innerText = assign.subject === 'Mathematics' ? 'CSE' : assign.subject === 'Physics' ? 'EEE' : assign.subject === 'Chemistry' ? 'Pharmacy' : 'BBA';
+            
+            // Populate AI-Suggested Swaps
+            populateSwaps(assign);
+        } else {
+            // Empty seat selected
+            document.getElementById('inspector-student-name').innerText = 'Unoccupied Seat';
+            document.getElementById('inspector-student-id').innerText = 'No student assigned';
+            document.getElementById('inspector-subject').innerText = 'N/A';
+            document.getElementById('inspector-dept').innerText = 'N/A';
+            document.getElementById('swaps-list').innerHTML = `
+                <div class="text-xs text-slate-400 py-2 italic">Select an occupied seat to see swap recommendations.</div>
+            `;
+        }
+    }
+
+    function populateSwaps(assign) {
+        const swapsContainer = document.getElementById('swaps-list');
+        swapsContainer.innerHTML = '';
+
+        // Find all other seats in this hall safely
+        const hall = hallsData.find(h => h.id === activeHallId);
+        const allAssignments = (allocationData && allocationData.assignments) ? allocationData.assignments : [];
+        const assignments = allAssignments.filter(a => a.hall_id === activeHallId);
+        
+        // Find seats that don't have the same subject, preferably empty or resolving conflict
+        // Let's filter assignments where subject is different and swap causes no conflicts
+        const potentialSwaps = assignments.filter(other => other.student_id !== assign.student_id && other.subject !== assign.subject);
+        
+        // Sort or select first 3 as recommendations
+        const recommendations = potentialSwaps.slice(0, 3);
+        
+        if (recommendations.length === 0) {
+            swapsContainer.innerHTML = `<div class="text-xs text-slate-400 py-2">No recommended swaps found.</div>`;
+            return;
+        }
+
+        recommendations.forEach(other => {
+            const swapItem = document.createElement('div');
+            swapItem.className = "flex items-center justify-between p-2 border border-slate-100 rounded-lg text-xs hover:bg-slate-50 transition-colors";
+            swapItem.innerHTML = `
+                <div class="flex-grow">
+                    <div class="font-bold text-slate-800">${other.student_name} (${other.subject.substring(0,3)})</div>
+                    <div class="text-[10px] text-slate-400">Seat R${other.row} C${other.col}</div>
+                </div>
+                <button onclick="performSwap('${assign.student_id}', '${other.student_id}')" 
+                    class="px-2.5 py-1 bg-white hover:bg-indigo-50 border border-slate-200 text-indigo-600 hover:text-indigo-700 font-bold rounded-lg text-[10px] shadow-xs transition-colors">
+                    Swap
+                </button>
+            `;
+            swapsContainer.appendChild(swapItem);
+        });
+    }
+
+    function performSwap(student1, student2) {
+        // Trigger client-side / backend swap
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/swap';
+        
+        const input1 = document.createElement('input');
+        input1.type = 'hidden';
+        input1.name = 'student1_id';
+        input1.value = student1;
+        
+        const input2 = document.createElement('input');
+        input2.type = 'hidden';
+        input2.name = 'student2_id';
+        input2.value = student2;
+        
+        form.appendChild(input1);
+        form.appendChild(input2);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function reoptimize() {
+        document.getElementById('reoptimize-loading').classList.remove('hidden');
+        
+        // Post request to reoptimize
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/reoptimize';
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function sendCopilotMessage() {
+        const input = document.getElementById('copilot-input');
+        const query = input.value.trim();
+        if (!query) return;
+        
+        input.value = '';
+        
+        // Add user message to chat history
+        const history = document.getElementById('copilot-chat-history');
+        const userMsg = document.createElement('div');
+        userMsg.className = "bg-indigo-600 text-white rounded-xl p-2.5 self-end max-w-[90%] leading-relaxed";
+        userMsg.innerText = query;
+        history.appendChild(userMsg);
+        
+        // Add temporary loading indicator
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = "bg-slate-50 text-slate-400 rounded-xl p-2.5 self-start max-w-[90%] italic";
+        loadingMsg.innerText = "Thinking...";
+        history.appendChild(loadingMsg);
+        
+        history.scrollTop = history.scrollHeight;
+        
+        // Call backend API
+        fetch('/api/ai_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: query })
+        })
+        .then(res => res.json())
+        .then(data => {
+            history.removeChild(loadingMsg);
+            const aiMsg = document.createElement('div');
+            aiMsg.className = "bg-slate-50 text-slate-600 rounded-xl p-2.5 self-start max-w-[90%] leading-relaxed";
+            aiMsg.innerText = data.response;
+            history.appendChild(aiMsg);
+            history.scrollTop = history.scrollHeight;
+        })
+        .catch(err => {
+            history.removeChild(loadingMsg);
+            const errorMsg = document.createElement('div');
+            errorMsg.className = "bg-red-50 text-red-600 rounded-xl p-2.5 self-start max-w-[90%] italic";
+            errorMsg.innerText = "Error: Could not connect to AI Copilot.";
+            history.appendChild(errorMsg);
+            history.scrollTop = history.scrollHeight;
+        });
+    }
+</script>
+{% endblock %}

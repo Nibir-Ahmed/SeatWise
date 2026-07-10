@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Environment secrets
+.env
+
+# Data caches (local allocations)
+data/active_allocation.json
+data/active_exams.json

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Seatwise{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div>
+        <p class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Exam Allocation &middot; Overview</p>
+        <h1 class="text-3xl font-bold text-slate-900 mt-1">Good morning, Prof. Menon.</h1>
+        <p class="text-sm text-slate-500 mt-1">
+            {{ exams|length }} exams in the pipeline. 
+            {% set optimizing = namespace(count=0) %}
+            {% for e in exams %}{% if e.status == 'Optimizing' %}{% set optimizing.count = optimizing.count + 1 %}{% endif %}{% endfor %}
+            {{ optimizing.count }} needs your review before Nov 28.
+        </p>
+    </div>
+    <div class="mt-4 sm:mt-0">
+        <a href="/new" class="inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            New allocation
+        </a>
+    </div>
+</div>
+
+<!-- Key Performance Indicators (KPIs) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <!-- Card 1 -->
+    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Students Seated</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2">2,785</p>
+        <p class="text-xs text-slate-500 mt-1">across 4 exams</p>
+    </div>
+    <!-- Card 2 -->
+    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Halls in Use</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2">19</p>
+        <p class="text-xs text-slate-500 mt-1">12 available</p>
+    </div>
+    <!-- Card 3 -->
+    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Open Conflicts</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2 text-amber-600">7</p>
+        <p class="text-xs text-slate-500 mt-1">down from 41</p>
+    </div>
+    <!-- Card 4 -->
+    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Avg. Optimizer Score</p>
+        <p class="text-3xl font-bold text-slate-900 mt-2">0.92</p>
+        <p class="text-xs text-slate-500 mt-1">target &ge; 0.90</p>
+    </div>
+</div>
+
+<!-- Upcoming Exams Table Section -->
+<div class="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 class="text-lg font-bold text-slate-900">Upcoming exams</h2>
+        
+        <!-- Table Filters -->
+        <div class="flex border border-slate-200 rounded-lg p-0.5 text-xs font-medium">
+            <button onclick="filterTable('all')" id="btn-all" class="px-3 py-1.5 rounded-md bg-slate-100 text-slate-900 transition-colors">All</button>
+            <button onclick="filterTable('Draft')" id="btn-draft" class="px-3 py-1.5 rounded-md text-slate-500 hover:text-slate-900 transition-colors">Draft</button>
+            <button onclick="filterTable('Ready')" id="btn-ready" class="px-3 py-1.5 rounded-md text-slate-500 hover:text-slate-900 transition-colors">Ready</button>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+            <thead>
+                <tr class="border-b border-slate-100 text-slate-400 font-semibold text-xs uppercase bg-slate-50/50">
+                    <th class="py-4 px-6">Exam</th>
+                    <th class="py-4 px-6">Date</th>
+                    <th class="py-4 px-6">Students</th>
+                    <th class="py-4 px-6">Halls</th>
+                    <th class="py-4 px-6">Conflicts</th>
+                    <th class="py-4 px-6">Score</th>
+                    <th class="py-4 px-6">Status</th>
+                    <th class="py-4 px-6 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% if exams %}
+                    {% for e in exams %}
+                    <tr class="hover:bg-slate-50/40 transition-colors exam-row" data-status="{{ e.status }}">
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-slate-900">{{ e.title }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">{{ e.session }}</div>
+                        </td>
+                        <td class="py-4 px-6 text-slate-600 font-medium">{{ e.date }}</td>
+                        <td class="py-4 px-6 text-slate-600 font-medium">{{ e.students_count }}</td>
+                        <td class="py-4 px-6 text-slate-600 font-medium">{{ e.halls_count }}</td>
+                        <td class="py-4 px-6 font-medium">
+                            {% if e.conflicts_count > 0 %}
+                            <span class="text-amber-600 font-semibold">{{ e.conflicts_count }}</span>
+                            {% else %}
+                            <span class="text-slate-400">0</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            {% if e.score is not none %}
+                            <div class="flex items-center space-x-2">
+                                <span class="text-slate-900 font-semibold w-8">{{ e.score }}</span>
+                                <div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-indigo-600 h-full rounded-full" style="width: {{ e.score * 100 }}%"></div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-slate-300">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            {% if e.status == 'Ready' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
+                                Ready
+                            </span>
+                            {% elif e.status == 'Optimizing' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
+                                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1.5 animate-pulse"></span>
+                                Optimizing
+                            </span>
+                            {% elif e.status == 'Draft' %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200">
+                                <span class="w-1.5 h-1.5 bg-slate-400 rounded-full mr-1.5"></span>
+                                Draft
+                            </span>
+                            {% else %}
+                            <!-- Published -->
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-1.5"></span>
+                                Published
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <a href="/seat-map" class="text-indigo-600 hover:text-indigo-900 font-semibold inline-flex items-center text-xs">
+                                Open
+                                <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="py-8 px-6 text-center text-slate-400 font-medium italic">
+                            No exams allocated yet. Click "+ New allocation" in the top-right to begin!
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function filterTable(filter) {
+        // Toggle active button styles
+        const btns = {
+            all: document.getElementById('btn-all'),
+            Draft: document.getElementById('btn-draft'),
+            Ready: document.getElementById('btn-ready')
+        };
+        
+        Object.keys(btns).forEach(key => {
+            if (key === filter) {
+                btns[key].classList.add('bg-slate-100', 'text-slate-900');
+                btns[key].classList.remove('text-slate-500');
+            } else {
+                btns[key].classList.remove('bg-slate-100', 'text-slate-900');
+                btns[key].classList.add('text-slate-500');
+            }
+        });
+
+        // Filter rows
+        const rows = document.querySelectorAll('.exam-row');
+        rows.forEach(row => {
+            const status = row.getAttribute('data-status');
+            if (filter === 'all' || status === filter) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

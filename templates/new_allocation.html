@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}New Allocation - Seatwise{% endblock %}
+
+{% block content %}
+<!-- Page Breadcrumbs -->
+<nav class="flex text-xs font-semibold tracking-wider text-slate-400 uppercase mb-8" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-2">
+        <li class="inline-flex items-center">
+            <a href="/" class="hover:text-slate-700">Dashboard</a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <svg class="w-3 h-3 text-slate-300 mx-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                <span class="text-slate-600">New allocation</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<div class="flex flex-col lg:flex-row lg:space-x-12">
+    <!-- Left Sidebar: Step Indicators -->
+    <div class="w-full lg:w-64 mb-8 lg:mb-0 flex-shrink-0">
+        <nav class="space-y-4" aria-label="Progress">
+            <ol class="space-y-4">
+                <!-- Step 1 Indicator -->
+                <li id="ind-step1" class="step-indicator active cursor-pointer hover:opacity-80 transition-opacity" onclick="goToStep(1)">
+                    <div class="group flex items-center">
+                        <span class="flex items-center text-sm font-medium">
+                            <span id="bullet-step1" class="flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-indigo-600 rounded-full text-indigo-600 font-bold bg-indigo-50/50">1</span>
+                            <span id="text-step1" class="ml-4 text-sm font-semibold text-slate-900">Exam details</span>
+                        </span>
+                    </div>
+                </li>
+                
+                <!-- Step 2 Indicator -->
+                <li id="ind-step2" class="step-indicator cursor-pointer hover:opacity-80 transition-opacity" onclick="goToStep(2)">
+                    <div class="group flex items-center">
+                        <span class="flex items-center text-sm font-medium">
+                            <span id="bullet-step2" class="flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-slate-200 rounded-full text-slate-400 font-bold">2</span>
+                            <span id="text-step2" class="ml-4 text-sm font-semibold text-slate-500">Data & halls</span>
+                        </span>
+                    </div>
+                </li>
+                
+                <!-- Step 3 Indicator -->
+                <li id="ind-step3" class="step-indicator cursor-pointer hover:opacity-80 transition-opacity" onclick="goToStep(3)">
+                    <div class="group flex items-center">
+                        <span class="flex items-center text-sm font-medium">
+                            <span id="bullet-step3" class="flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-slate-200 rounded-full text-slate-400 font-bold">3</span>
+                            <span id="text-step3" class="ml-4 text-sm font-semibold text-slate-500">Constraints</span>
+                        </span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Right Panel: Step Forms Container -->
+    <div class="flex-grow bg-white border border-slate-100 rounded-2xl shadow-sm p-8">
+        <form id="allocation-form" method="POST" action="/api/allocate" enctype="multipart/form-data">
+            
+            <!-- STEP 1 FORM: Exam Details -->
+            <div id="form-step1" class="step-form">
+                <div class="border-b border-slate-100 pb-5 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900">Exam details</h2>
+                    <p class="text-sm text-slate-400 mt-1">Set the basic identity of this exam session.</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label for="exam-title" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Exam Title</label>
+                        <input type="text" id="exam-title" name="exam_title" value="End-Sem Semester 3" required
+                            class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="exam-date" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Date</label>
+                            <input type="date" id="exam-date" name="exam_date" value="2026-11-24" required
+                                class="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="exam-session" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Session</label>
+                            <select id="exam-session" name="exam_session" required
+                                class="w-full border border-slate-200 bg-white rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm">
+                                <option value="Morning - 9:30 AM" selected>Morning - 9:30 AM</option>
+                                <option value="Afternoon - 2:00 PM">Afternoon - 2:00 PM</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="exam-duration" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Duration</label>
+                            <select id="exam-duration" name="exam_duration" required
+                                class="w-full border border-slate-200 bg-white rounded-lg px-4 py-2.5 text-slate-800 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm">
+                                <option value="2 hours">2 hours</option>
+                                <option value="3 hours" selected>3 hours</option>
+                                <option value="4 hours">4 hours</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end mt-10 pt-6 border-t border-slate-100">
+                    <button type="button" onclick="goToStep(2)"
+                        class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center">
+                        Continue
+                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- STEP 2 FORM: Data & Halls -->
+            <div id="form-step2" class="step-form hidden">
+                <div class="border-b border-slate-100 pb-5 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900">Students, subjects, halls</h2>
+                    <p class="text-sm text-slate-400 mt-1">Upload or pick from your directory.</p>
+                </div>
+                
+                <div class="space-y-8">
+                    <!-- Files Roster Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Card 1: Students Roster -->
+                        <div class="border border-slate-200 border-dashed rounded-xl p-6 relative flex flex-col justify-between min-h-[140px] bg-slate-50/20">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-sm">Students roster</h3>
+                                <p class="text-xs text-slate-400 mt-1" id="students-file-info">Using default sample roster (240 students &middot; CSV loaded)</p>
+                            </div>
+                            <div class="mt-4 flex items-center space-x-2">
+                                <label class="cursor-pointer inline-flex items-center justify-center px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+                                    <span>Upload CSV</span>
+                                    <input type="file" id="students-csv" name="students_csv" accept=".csv" class="hidden" onchange="updateFileLabel(this, 'students-file-info')">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Card 2: Subject Mapping -->
+                        <div class="border border-slate-200 border-dashed rounded-xl p-6 relative flex flex-col justify-between min-h-[140px] bg-slate-50/20">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-sm">Subject mapping</h3>
+                                <p class="text-xs text-slate-400 mt-1" id="halls-file-info">Using default sample configuration (2 halls &middot; JSON loaded)</p>
+                            </div>
+                            <div class="mt-4 flex items-center space-x-2">
+                                <label class="cursor-pointer inline-flex items-center justify-center px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+                                    <span>Upload JSON</span>
+                                    <input type="file" id="halls-json" name="halls_json" accept=".json" class="hidden" onchange="updateFileLabel(this, 'halls-file-info')">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Halls Section -->
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Halls</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Hall A -->
+                            <label class="border border-slate-200 rounded-xl p-4 flex items-start space-x-3 cursor-pointer hover:bg-slate-50/30 transition-colors relative">
+                                <input type="checkbox" name="selected_halls" value="H1" checked class="mt-1 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded">
+                                <div>
+                                    <div class="font-bold text-slate-900 text-sm">Hall A &mdash; Main Block</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">10&times;12 &middot; seats 120</div>
+                                    <div class="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-medium mt-1.5 inline-block">12 accessible</div>
+                                </div>
+                            </label>
+                            
+                            <!-- Hall B -->
+                            <label class="border border-slate-200 rounded-xl p-4 flex items-start space-x-3 cursor-pointer hover:bg-slate-50/30 transition-colors relative">
+                                <input type="checkbox" name="selected_halls" value="H2" checked class="mt-1 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded">
+                                <div>
+                                    <div class="font-bold text-slate-900 text-sm">Hall B &mdash; Science Wing</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">8&times;10 &middot; seats 80</div>
+                                    <div class="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-medium mt-1.5 inline-block">10 accessible</div>
+                                </div>
+                            </label>
+
+                            <!-- Hall C -->
+                            <label class="border border-slate-200 rounded-xl p-4 flex items-start space-x-3 cursor-pointer hover:bg-slate-50/30 transition-colors relative">
+                                <input type="checkbox" name="selected_halls" value="H3" checked class="mt-1 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded">
+                                <div>
+                                    <div class="font-bold text-slate-900 text-sm">Hall C &mdash; Library Annex</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">6&times;14 &middot; seats 84</div>
+                                    <div class="text-[10px] bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-medium mt-1.5 inline-block">14 accessible</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-10 pt-6 border-t border-slate-100">
+                    <button type="button" onclick="goToStep(1)"
+                        class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-semibold rounded-lg transition-colors inline-flex items-center">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Back
+                    </button>
+                    
+                    <button type="button" onclick="goToStep(3)"
+                        class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center">
+                        Continue
+                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- STEP 3 FORM: Constraints & Run -->
+            <div id="form-step3" class="step-form hidden">
+                <div class="border-b border-slate-100 pb-5 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900">Constraints</h2>
+                    <p class="text-sm text-slate-400 mt-1">Review allocation parameters.</p>
+                </div>
+                
+                <div class="space-y-4 max-w-xl">
+                    <!-- Constraint 1 -->
+                    <div class="flex items-start space-x-3 p-4 border border-slate-100 rounded-xl">
+                        <span class="flex-shrink-0 w-5 h-5 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mt-0.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">No Same-Subject Adjacency</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">Students writing the same exam subject cannot sit adjacent in any of the 8 directions.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Constraint 2 -->
+                    <div class="flex items-start space-x-3 p-4 border border-slate-100 rounded-xl">
+                        <span class="flex-shrink-0 w-5 h-5 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mt-0.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">Priority Accessibility</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">Students with accessibility needs are placed in designated accessible rows (row 0).</p>
+                        </div>
+                    </div>
+
+                    <!-- Constraint 3 -->
+                    <div class="flex items-start space-x-3 p-4 border border-slate-100 rounded-xl">
+                        <span class="flex-shrink-0 w-5 h-5 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mt-0.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">Optimal Grid Fill</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">The engine distributes subjects checkerboard-style to isolate papers cleanly.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-10 pt-6 border-t border-slate-100">
+                    <button type="button" onclick="goToStep(2)"
+                        class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-semibold rounded-lg transition-colors inline-flex items-center">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Back
+                    </button>
+                    
+                    <button type="submit" onclick="showOptimizerLoading()"
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center">
+                        Run Optimizer
+                        <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+<!-- Optimizer Loading Overlay -->
+<div id="optimizer-loading" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-50 hidden">
+    <div class="bg-white border border-slate-100 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center">
+        <!-- Spinner -->
+        <div class="flex justify-center mb-6">
+            <svg class="animate-spin h-10 w-10 text-indigo-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">Optimizing seat layout</h3>
+        <p class="text-sm text-slate-500 mb-6">CSP search solver executing. Spreading exam subjects evenly...</p>
+        
+        <!-- Progress Steps -->
+        <div class="text-left space-y-3 border-t border-slate-100 pt-6 text-xs text-slate-500 font-medium">
+            <div class="flex items-center space-x-2 text-indigo-600 font-semibold" id="loading-step-1">
+                <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg>
+                <span>Loading students & hall grids...</span>
+            </div>
+            <div class="flex items-center space-x-2 opacity-50" id="loading-step-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg>
+                <span>Running Constraint Propagation (CSP)...</span>
+            </div>
+            <div class="flex items-center space-x-2 opacity-50" id="loading-step-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg>
+                <span>Simulated Annealing conflict reduction...</span>
+            </div>
+            <div class="flex items-center space-x-2 opacity-50" id="loading-step-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg>
+                <span>Verifying and rendering allocation result...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goToStep(stepNum) {
+        try {
+            // Hide all forms
+            document.querySelectorAll('.step-form').forEach(form => form.classList.add('hidden'));
+            // Show current form
+            const targetForm = document.getElementById('form-step' + stepNum);
+            if (targetForm) {
+                targetForm.classList.remove('hidden');
+            }
+        } catch (e) {
+            console.error("Error toggling forms:", e);
+        }
+
+        // Update step indicators styling
+        try {
+            for (let i = 1; i <= 3; i++) {
+                const ind = document.getElementById('ind-step' + i);
+                const bullet = document.getElementById('bullet-step' + i);
+                const text = document.getElementById('text-step' + i) || (ind ? ind.querySelector('span.ml-4') : null);
+                
+                if (!ind || !bullet || !text) continue;
+                
+                if (i < stepNum) {
+                    // Completed step
+                    ind.classList.remove('active');
+                    bullet.className = "flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-emerald-500 rounded-full text-white font-bold bg-emerald-500";
+                    bullet.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                    text.className = "ml-4 text-sm font-semibold text-slate-500";
+                } else if (i === stepNum) {
+                    // Active step
+                    ind.classList.add('active');
+                    bullet.className = "flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-indigo-600 rounded-full text-indigo-600 font-bold bg-indigo-50/50";
+                    bullet.innerHTML = i;
+                    text.className = "ml-4 text-sm font-semibold text-slate-900";
+                } else {
+                    // Future step
+                    ind.classList.remove('active');
+                    bullet.className = "flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-slate-200 rounded-full text-slate-400 font-bold";
+                    bullet.innerHTML = i;
+                    text.className = "ml-4 text-sm font-semibold text-slate-500";
+                }
+            }
+        } catch (e) {
+            console.error("Error updating step indicators:", e);
+        }
+    }
+
+    function updateFileLabel(input, infoId) {
+        const info = document.getElementById(infoId);
+        if (input.files && input.files.length > 0) {
+            info.innerHTML = `Selected: <span class="font-semibold text-indigo-600">${input.files[0].name}</span> (${Math.round(input.files[0].size/1024)} KB)`;
+        }
+    }
+
+    function showOptimizerLoading() {
+        const overlay = document.getElementById('optimizer-loading');
+        overlay.classList.remove('hidden');
+        
+        // Simulate step transition for presentation UI feel
+        setTimeout(() => {
+            document.getElementById('loading-step-1').className = "flex items-center space-x-2 text-emerald-600 font-semibold";
+            document.getElementById('loading-step-1').querySelector('svg').innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>`;
+            document.getElementById('loading-step-1').querySelector('svg').className = "w-4 h-4";
+            document.getElementById('loading-step-2').className = "flex items-center space-x-2 text-indigo-600 font-semibold";
+            document.getElementById('loading-step-2').querySelector('svg').className = "w-4 h-4 animate-pulse";
+        }, 800);
+        
+        setTimeout(() => {
+            document.getElementById('loading-step-2').className = "flex items-center space-x-2 text-emerald-600 font-semibold";
+            document.getElementById('loading-step-2').querySelector('svg').innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>`;
+            document.getElementById('loading-step-2').querySelector('svg').className = "w-4 h-4";
+            document.getElementById('loading-step-3').className = "flex items-center space-x-2 text-indigo-600 font-semibold";
+            document.getElementById('loading-step-3').querySelector('svg').className = "w-4 h-4 animate-pulse";
+        }, 1600);
+
+        setTimeout(() => {
+            document.getElementById('loading-step-3').className = "flex items-center space-x-2 text-emerald-600 font-semibold";
+            document.getElementById('loading-step-3').querySelector('svg').innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>`;
+            document.getElementById('loading-step-3').querySelector('svg').className = "w-4 h-4";
+            document.getElementById('loading-step-4').className = "flex items-center space-x-2 text-indigo-600 font-semibold";
+            document.getElementById('loading-step-4').querySelector('svg').className = "w-4 h-4 animate-pulse";
+        }, 2400);
+    }
+</script>
+{% endblock %}

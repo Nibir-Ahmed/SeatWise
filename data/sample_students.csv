@@ -1,0 +1,241 @@
+id,name,subject,department,needs_accessible
+S001,Asif Ahmed,History,Arts,false
+S002,Habib Hossain,History,Arts,false
+S003,Bilal Chowdhury,Physics,EEE,false
+S004,Wasim Ali,Mathematics,CSE,false
+S005,Pavel Ahmed,Biology,Genetic Eng,false
+S006,Ayesha Hossain,Mathematics,CSE,false
+S007,Tariq Begum,Physics,EEE,false
+S008,Zahid Hossain,Mathematics,CSE,false
+S009,Wasim Rahman,History,Arts,false
+S010,Rashed Begum,Physics,EEE,false
+S011,Aarav Dutta,Chemistry,Pharmacy,false
+S012,Pavel Khan,Physics,EEE,false
+S013,Bipul Hossain,Chemistry,Pharmacy,false
+S014,Arif Ali,Chemistry,Pharmacy,false
+S015,Arif Khan,English,BBA,true
+S016,Gias Dutta,Chemistry,Pharmacy,false
+S017,Rahim Akter,Mathematics,CSE,false
+S018,Nabil Ali,Mathematics,CSE,false
+S019,Hasan Karim,Biology,Genetic Eng,false
+S020,Mamun Begum,History,Arts,false
+S021,Anika Ahmed,Physics,EEE,false
+S022,Fatima Dutta,History,Arts,false
+S023,Ayesha Karim,Chemistry,Pharmacy,false
+S024,Arif Rahman,Physics,EEE,false
+S025,Rahim Roy,Chemistry,Pharmacy,false
+S026,Chayan Khan,Chemistry,Pharmacy,false
+S027,Fahim Roy,Chemistry,Pharmacy,false
+S028,Anika Begum,Chemistry,Pharmacy,false
+S029,Chayan Akter,History,Arts,false
+S030,Farhan Hasan,History,Arts,true
+S031,Nabil Islam,English,BBA,false
+S032,Zahid Hossain,History,Arts,false
+S033,Jamil Karim,History,Arts,false
+S034,Fatima Karim,Mathematics,CSE,false
+S035,Jamil Rahman,Mathematics,CSE,false
+S036,Anika Hossain,Chemistry,Pharmacy,false
+S037,Jamil Hossain,Biology,Genetic Eng,false
+S038,Sajid Rahman,History,Arts,false
+S039,Rahim Hasan,History,Arts,false
+S040,Bilal Hossain,Chemistry,Pharmacy,false
+S041,Zahid Akter,History,Arts,false
+S042,Pavel Uddin,Chemistry,Pharmacy,false
+S043,Nusrat Khan,Biology,Genetic Eng,false
+S044,Bilal Akter,Physics,EEE,false
+S045,Ayesha Dutta,English,BBA,true
+S046,Asif Hasan,Mathematics,CSE,false
+S047,Chayan Dutta,History,Arts,false
+S048,Pavel Begum,History,Arts,false
+S049,Nabil Rahman,Mathematics,CSE,false
+S050,Rahim Akter,Biology,Genetic Eng,false
+S051,Zahid Karim,Chemistry,Pharmacy,false
+S052,Asif Roy,Mathematics,CSE,false
+S053,Habib Dutta,Biology,Genetic Eng,false
+S054,Kamal Ali,History,Arts,false
+S055,Pavel Hasan,Chemistry,Pharmacy,false
+S056,Aarav Chowdhury,English,BBA,false
+S057,Gias Akter,History,Arts,false
+S058,Tariq Uddin,Physics,EEE,false
+S059,Imran Karim,Mathematics,CSE,false
+S060,Tariq Begum,History,Arts,true
+S061,Bipul Khan,Physics,EEE,false
+S062,Wasim Dutta,Physics,EEE,false
+S063,Aarav Begum,Biology,Genetic Eng,false
+S064,Sajid Ahmed,Chemistry,Pharmacy,false
+S065,Mamun Uddin,Mathematics,CSE,false
+S066,Farhan Ahmed,Chemistry,Pharmacy,false
+S067,Ayesha Ali,Physics,EEE,false
+S068,Sajid Karim,History,Arts,false
+S069,Wasim Dutta,Mathematics,CSE,false
+S070,Bilal Roy,Physics,EEE,false
+S071,Zahid Hasan,English,BBA,false
+S072,Umar Karim,Chemistry,Pharmacy,false
+S073,Pavel Hossain,Biology,Genetic Eng,false
+S074,Emon Chowdhury,Biology,Genetic Eng,false
+S075,Nusrat Roy,Chemistry,Pharmacy,true
+S076,Mamun Sultana,History,Arts,false
+S077,Rashed Ali,Biology,Genetic Eng,false
+S078,Fatima Ali,Physics,EEE,false
+S079,Akash Begum,Chemistry,Pharmacy,false
+S080,Fatima Begum,Biology,Genetic Eng,false
+S081,Aarav Ali,Physics,EEE,false
+S082,Alvi Hossain,History,Arts,false
+S083,Adnan Karim,Mathematics,CSE,false
+S084,Anika Akter,Chemistry,Pharmacy,false
+S085,Habib Roy,Physics,EEE,false
+S086,Fahim Akter,English,BBA,false
+S087,Sadia Hossain,Physics,EEE,false
+S088,Opu Hossain,English,BBA,false
+S089,Arif Roy,Mathematics,CSE,false
+S090,Limon Rahman,English,BBA,true
+S091,Rahim Karim,English,BBA,false
+S092,Alvi Roy,History,Arts,false
+S093,Arif Ahmed,History,Arts,false
+S094,Kamal Dutta,English,BBA,false
+S095,Farhan Hossain,Mathematics,CSE,false
+S096,Wasim Sultana,Physics,EEE,false
+S097,Pavel Hasan,Physics,EEE,false
+S098,Rahim Hossain,Chemistry,Pharmacy,false
+S099,Rashed Dutta,Mathematics,CSE,false
+S100,Arif Ahmed,Biology,Genetic Eng,false
+S101,Wasim Karim,History,Arts,false
+S102,Ayesha Uddin,Mathematics,CSE,false
+S103,Chayan Rahman,Physics,EEE,false
+S104,Sadia Hossain,English,BBA,false
+S105,Alvi Hasan,English,BBA,true
+S106,Aarav Rahman,English,BBA,false
+S107,Rahim Islam,Chemistry,Pharmacy,false
+S108,Zahid Roy,English,BBA,false
+S109,Sajid Hasan,History,Arts,false
+S110,Hasan Hossain,Physics,EEE,false
+S111,Wasim Ahmed,Mathematics,CSE,false
+S112,Jamil Ahmed,History,Arts,false
+S113,Sadia Akter,Mathematics,CSE,false
+S114,Chayan Ahmed,Biology,Genetic Eng,false
+S115,Ayesha Karim,Biology,Genetic Eng,false
+S116,Anika Begum,Physics,EEE,false
+S117,Farhan Rahman,Mathematics,CSE,false
+S118,Farhan Begum,Mathematics,CSE,false
+S119,Adnan Begum,Biology,Genetic Eng,false
+S120,Opu Roy,Mathematics,CSE,true
+S121,Umar Khan,Biology,Genetic Eng,false
+S122,Fahim Roy,Chemistry,Pharmacy,false
+S123,Jamil Hossain,History,Arts,false
+S124,Nusrat Hasan,Chemistry,Pharmacy,false
+S125,Imran Sultana,History,Arts,false
+S126,Anika Ahmed,Chemistry,Pharmacy,false
+S127,Arif Ali,English,BBA,false
+S128,Fahim Akter,Biology,Genetic Eng,false
+S129,Bilal Uddin,Chemistry,Pharmacy,false
+S130,Anika Uddin,Chemistry,Pharmacy,false
+S131,Mamun Islam,Physics,EEE,false
+S132,Rashed Karim,Physics,EEE,false
+S133,Imran Begum,Biology,Genetic Eng,false
+S134,Umar Ahmed,History,Arts,false
+S135,Zahid Islam,History,Arts,true
+S136,Arif Uddin,History,Arts,false
+S137,Gias Ali,Physics,EEE,false
+S138,Zahid Hasan,Mathematics,CSE,false
+S139,Hasan Begum,Chemistry,Pharmacy,false
+S140,Kamal Hossain,Physics,EEE,false
+S141,Gias Akter,History,Arts,false
+S142,Gias Uddin,English,BBA,false
+S143,Ayesha Roy,Mathematics,CSE,false
+S144,Habib Ahmed,English,BBA,false
+S145,Kamal Dutta,Mathematics,CSE,false
+S146,Gias Hasan,Physics,EEE,false
+S147,Rashed Akter,History,Arts,false
+S148,Pavel Akter,History,Arts,false
+S149,Asif Ali,Mathematics,CSE,false
+S150,Bipul Akter,History,Arts,true
+S151,Mamun Begum,Mathematics,CSE,false
+S152,Bipul Rahman,Biology,Genetic Eng,false
+S153,Adnan Islam,Physics,EEE,false
+S154,Adnan Uddin,Chemistry,Pharmacy,false
+S155,Fahim Roy,Chemistry,Pharmacy,false
+S156,Arif Khan,Physics,EEE,false
+S157,Opu Begum,Biology,Genetic Eng,false
+S158,Bipul Uddin,History,Arts,false
+S159,Chayan Dutta,Physics,EEE,false
+S160,Opu Ahmed,Physics,EEE,false
+S161,Kamal Dutta,Physics,EEE,false
+S162,Farhan Islam,English,BBA,false
+S163,Arif Rahman,Physics,EEE,false
+S164,Sadia Hossain,Mathematics,CSE,false
+S165,Rahim Khan,Physics,EEE,true
+S166,Fatima Hossain,Chemistry,Pharmacy,false
+S167,Emon Rahman,Mathematics,CSE,false
+S168,Habib Karim,Chemistry,Pharmacy,false
+S169,Habib Khan,Mathematics,CSE,false
+S170,Tariq Rahman,History,Arts,false
+S171,Wasim Khan,History,Arts,false
+S172,Asif Uddin,Mathematics,CSE,false
+S173,Dilip Begum,Chemistry,Pharmacy,false
+S174,Adnan Ali,Chemistry,Pharmacy,false
+S175,Pavel Khan,Biology,Genetic Eng,false
+S176,Jamil Rahman,History,Arts,false
+S177,Tariq Ali,Biology,Genetic Eng,false
+S178,Emon Islam,English,BBA,false
+S179,Pavel Ahmed,Mathematics,CSE,false
+S180,Wasim Roy,Biology,Genetic Eng,true
+S181,Emon Khan,History,Arts,false
+S182,Anika Roy,English,BBA,false
+S183,Jamil Roy,Chemistry,Pharmacy,false
+S184,Imran Akter,Mathematics,CSE,false
+S185,Opu Khan,Chemistry,Pharmacy,false
+S186,Hasan Akter,English,BBA,false
+S187,Emon Rahman,Physics,EEE,false
+S188,Nabil Roy,History,Arts,false
+S189,Dilip Begum,History,Arts,false
+S190,Imran Rahman,Biology,Genetic Eng,false
+S191,Aarav Islam,Biology,Genetic Eng,false
+S192,Fahim Rahman,Chemistry,Pharmacy,false
+S193,Jamil Sultana,Biology,Genetic Eng,false
+S194,Rashed Roy,English,BBA,false
+S195,Tariq Sultana,Physics,EEE,true
+S196,Chayan Roy,History,Arts,false
+S197,Hasan Akter,Mathematics,CSE,false
+S198,Kamal Ali,History,Arts,false
+S199,Imran Hossain,Physics,EEE,false
+S200,Bipul Ahmed,Physics,EEE,false
+S201,Farhan Sultana,Mathematics,CSE,false
+S202,Anika Sultana,Biology,Genetic Eng,false
+S203,Emon Chowdhury,English,BBA,false
+S204,Nabil Sultana,History,Arts,false
+S205,Farhan Hasan,English,BBA,false
+S206,Aarav Uddin,History,Arts,false
+S207,Pavel Hossain,Mathematics,CSE,false
+S208,Umar Sultana,Physics,EEE,false
+S209,Zahid Hossain,Mathematics,CSE,false
+S210,Rahim Hasan,Mathematics,CSE,true
+S211,Umar Akter,English,BBA,false
+S212,Jamil Dutta,Biology,Genetic Eng,false
+S213,Tariq Rahman,English,BBA,false
+S214,Rashed Uddin,Biology,Genetic Eng,false
+S215,Sadia Sultana,Physics,EEE,false
+S216,Farhan Karim,Chemistry,Pharmacy,false
+S217,Habib Dutta,History,Arts,false
+S218,Sajid Roy,Biology,Genetic Eng,false
+S219,Habib Sultana,Physics,EEE,false
+S220,Hasan Hossain,Mathematics,CSE,false
+S221,Kamal Khan,Chemistry,Pharmacy,false
+S222,Ayesha Hasan,Biology,Genetic Eng,false
+S223,Fatima Rahman,Physics,EEE,false
+S224,Bipul Chowdhury,History,Arts,false
+S225,Anika Rahman,Physics,EEE,true
+S226,Kamal Akter,English,BBA,false
+S227,Opu Ahmed,English,BBA,false
+S228,Opu Rahman,Physics,EEE,false
+S229,Akash Karim,Biology,Genetic Eng,false
+S230,Nabil Sultana,Biology,Genetic Eng,false
+S231,Limon Islam,Mathematics,CSE,false
+S232,Opu Akter,English,BBA,false
+S233,Wasim Dutta,History,Arts,false
+S234,Fatima Sultana,Biology,Genetic Eng,false
+S235,Habib Rahman,Physics,EEE,false
+S236,Akash Rahman,English,BBA,false
+S237,Nusrat Chowdhury,Chemistry,Pharmacy,false
+S238,Rahim Uddin,Physics,EEE,false
+S239,Wasim Ahmed,Physics,EEE,false
+S240,Akash Ali,English,BBA,true
