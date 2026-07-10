@@ -6,17 +6,14 @@
 <!-- Dashboard Header -->
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
     <div>
-        <p class="text-xs font-semibold tracking-wider text-slate-400 uppercase">Exam Allocation &middot; Overview</p>
-        <h1 class="text-3xl font-bold text-slate-900 mt-1">Good morning, Prof. Menon.</h1>
+        <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider">System Administration</p>
+        <h1 class="text-3xl font-bold text-slate-900 mt-1">Exam Seating Dashboard</h1>
         <p class="text-sm text-slate-500 mt-1">
-            {{ exams|length }} exams in the pipeline. 
-            {% set optimizing = namespace(count=0) %}
-            {% for e in exams %}{% if e.status == 'Optimizing' %}{% set optimizing.count = optimizing.count + 1 %}{% endif %}{% endfor %}
-            {{ optimizing.count }} needs your review before Nov 28.
+            Manage, configure, and optimize seat allocations across all scheduled exam sessions.
         </p>
     </div>
     <div class="mt-4 sm:mt-0">
-        <a href="/new" class="inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+        <a href="/new" class="inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             New allocation
         </a>
@@ -26,25 +23,25 @@
 <!-- Key Performance Indicators (KPIs) -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
     <!-- Card 1 -->
-    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+    <div class="bg-white border border-slate-100/80 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Students Seated</p>
         <p class="text-3xl font-bold text-slate-900 mt-2">{{ "{:,}".format(stats.total_students) }}</p>
         <p class="text-xs text-slate-500 mt-1">across {{ exams|length }} exam{% if exams|length != 1 %}s{% endif %}</p>
     </div>
     <!-- Card 2 -->
-    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+    <div class="bg-white border border-slate-100/80 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Halls in Use</p>
         <p class="text-3xl font-bold text-slate-900 mt-2">{{ stats.halls_in_use }}</p>
         <p class="text-xs text-slate-500 mt-1">{{ stats.total_available_halls }} available</p>
     </div>
     <!-- Card 3 -->
-    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+    <div class="bg-white border border-slate-100/80 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Open Conflicts</p>
         <p class="text-3xl font-bold mt-2 {% if stats.total_conflicts > 0 %}text-amber-600{% else %}text-slate-900{% endif %}">{{ stats.total_conflicts }}</p>
         <p class="text-xs text-slate-500 mt-1">across all sessions</p>
     </div>
     <!-- Card 4 -->
-    <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+    <div class="bg-white border border-slate-100/80 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Avg. Optimizer Score</p>
         <p class="text-3xl font-bold text-slate-900 mt-2">{{ "{:.2f}".format(stats.avg_score) }}</p>
         <p class="text-xs text-slate-500 mt-1">target &ge; 0.90</p>
@@ -52,7 +49,7 @@
 </div>
 
 <!-- Upcoming Exams Table Section -->
-<div class="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
+<div class="bg-white border border-slate-100/80 rounded-xl shadow-md overflow-hidden">
     <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 class="text-lg font-bold text-slate-900">Upcoming exams</h2>
         
